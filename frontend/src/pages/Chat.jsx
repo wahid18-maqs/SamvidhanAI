@@ -37,6 +37,7 @@ export default function Chat() {
   const [explorerRequest, setExplorerRequest] = useState(null);
   const [language, setLanguage] = useState("en");
   const [shareStatus, setShareStatus] = useState(null);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const searchInputRef = useRef(null);
 
   // Loading an existing conversation from History (?conversation=<id>).
@@ -72,6 +73,7 @@ export default function Chat() {
     setExplorerRequest(null);
     setConversationId(crypto.randomUUID());
     setSearchParams({});
+    setSidebarOpen(false);
   }
 
   async function sendMessage(text) {
@@ -130,6 +132,7 @@ export default function Chat() {
       title: label,
       load: () => getArticleGroup(categoryKey).then((data) => ({ title: data.label, sources: data.sources })),
     });
+    setSidebarOpen(false);
   }
 
   function handleCasesSelect() {
@@ -137,6 +140,7 @@ export default function Chat() {
       title: "Landmark Judgments",
       load: () => getCases().then((data) => ({ title: data.label, sources: data.sources })),
     });
+    setSidebarOpen(false);
   }
 
   function handleArticleNumber(number) {
@@ -145,6 +149,7 @@ export default function Chat() {
       title: label,
       load: () => getSource(`article_${number}`).then((source) => ({ title: label, sources: [source] })),
     });
+    setSidebarOpen(false);
   }
 
   function handleTopicSearch(query) {
@@ -152,6 +157,7 @@ export default function Chat() {
       title: `Search: ${query}`,
       load: () => search(query).then((data) => ({ title: `Search: ${data.query}`, results: data.results })),
     });
+    setSidebarOpen(false);
   }
 
   function handleFulltextSearch(query) {
@@ -160,6 +166,7 @@ export default function Chat() {
       load: () =>
         searchFulltext(query).then((data) => ({ title: `Full-Text: ${data.query}`, results: data.results })),
     });
+    setSidebarOpen(false);
   }
 
   function handleCaseAnalysis() {
@@ -167,6 +174,7 @@ export default function Chat() {
       title: "Case Analysis",
       load: () => getCaseAnalyses().then((data) => ({ title: data.label, analyses: data.analyses })),
     });
+    setSidebarOpen(false);
   }
 
   function handleCitationClick(citation) {
@@ -194,6 +202,8 @@ export default function Chat() {
   return (
     <div className="flex h-screen bg-base">
       <Sidebar
+        open={sidebarOpen}
+        onClose={() => setSidebarOpen(false)}
         onNewChat={handleNewChat}
         onCategorySelect={handleCategorySelect}
         onCasesSelect={handleCasesSelect}
@@ -203,8 +213,9 @@ export default function Chat() {
         onCaseAnalysis={handleCaseAnalysis}
       />
 
-      <div className="flex flex-1 flex-col">
+      <div className="flex min-w-0 flex-1 flex-col">
         <TopBar
+          onMenuClick={() => setSidebarOpen(true)}
           searchValue={searchValue}
           onSearchChange={setSearchValue}
           onSearchSubmit={handleSearchSubmit}
@@ -216,7 +227,7 @@ export default function Chat() {
           shareStatus={shareStatus}
         />
 
-        <main className="flex-1 space-y-6 overflow-y-auto p-6">
+        <main className="flex-1 space-y-6 overflow-y-auto p-4 sm:p-6">
           {messages.length === 0 ? (
             <p className="text-sm text-muted">
               Ask a question about the Constitution to get started.
@@ -230,19 +241,19 @@ export default function Chat() {
           {error && <p className="text-sm text-red-400">{error}</p>}
         </main>
 
-        <form onSubmit={handleDraftSubmit} className="flex gap-2 border-t border-border bg-base px-6 py-4">
+        <form onSubmit={handleDraftSubmit} className="flex gap-2 border-t border-border bg-base px-4 py-4 sm:px-6">
           <input
             type="text"
             value={draft}
             onChange={(event) => setDraft(event.target.value)}
             placeholder="Type your question…"
             disabled={sending}
-            className="flex-1 rounded-xl border border-border bg-panel px-4 py-2 text-sm text-heading placeholder-muted focus:border-gold focus:outline-none disabled:opacity-60"
+            className="min-w-0 flex-1 rounded-xl border border-border bg-panel px-4 py-2 text-sm text-heading placeholder-muted focus:border-gold focus:outline-none disabled:opacity-60"
           />
           <button
             type="submit"
             disabled={sending}
-            className="rounded-xl bg-gold-gradient px-5 py-2 text-sm font-medium text-base transition hover:opacity-95 disabled:opacity-60"
+            className="shrink-0 rounded-xl bg-gold-gradient px-5 py-2 text-sm font-medium text-base transition hover:opacity-95 disabled:opacity-60"
           >
             Send
           </button>

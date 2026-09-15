@@ -50,7 +50,7 @@ export default function SourceExplorer({ request, onClose }) {
   const items = sources ?? results ?? analyses;
 
   return (
-    <aside className="flex h-screen w-96 shrink-0 flex-col border-l border-border bg-panel shadow-2xl">
+    <aside className="fixed inset-0 z-50 flex flex-col bg-panel shadow-2xl lg:static lg:inset-auto lg:z-auto lg:h-screen lg:w-96 lg:shrink-0 lg:border-l lg:border-border">
       <div className="flex h-16 items-center justify-between border-b border-border px-5">
         <h2 className="truncate text-sm font-semibold text-heading">{title}</h2>
         <button

@@ -10,6 +10,7 @@ import {
   Search,
   Settings,
   Shield,
+  X,
 } from "lucide-react";
 
 // NB: the Ashoka State Emblem shown in the reference mockup is a protected
@@ -74,6 +75,8 @@ function NavGroup({ icon: Icon, label, expanded, onToggle, children }) {
 }
 
 export default function Sidebar({
+  open,
+  onClose,
   onNewChat,
   onCategorySelect,
   onCasesSelect,
@@ -113,11 +116,35 @@ export default function Sidebar({
   }
 
   return (
-    <aside className="flex h-screen w-72 shrink-0 flex-col border-r border-border bg-panel">
-      <div className="flex h-16 items-center gap-2.5 border-b border-border px-5">
-        <Landmark size={20} className="shrink-0 text-gold" />
-        <span className="font-semibold tracking-wide text-heading">SamvidhanAI</span>
-      </div>
+    <>
+      {/* Backdrop: mobile-only, closes the drawer on outside tap. The
+          sidebar itself is lg:static (a normal flex-row item, always
+          visible) but fixed/overlaid below lg, so this only ever renders
+          stacked behind it on small screens. */}
+      {open && (
+        <div
+          className="fixed inset-0 z-30 bg-black/50 lg:hidden"
+          onClick={onClose}
+          aria-hidden="true"
+        />
+      )}
+      <aside
+        className={`fixed inset-y-0 left-0 z-40 flex h-screen w-72 max-w-[85vw] shrink-0 flex-col border-r border-border bg-panel transition-transform duration-200 lg:static lg:z-auto lg:w-72 lg:max-w-none lg:translate-x-0 ${
+          open ? "translate-x-0" : "-translate-x-full"
+        }`}
+      >
+        <div className="flex h-16 items-center gap-2.5 border-b border-border px-5">
+          <Landmark size={20} className="shrink-0 text-gold" />
+          <span className="flex-1 font-semibold tracking-wide text-heading">SamvidhanAI</span>
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Close menu"
+            className="shrink-0 text-muted hover:text-heading lg:hidden"
+          >
+            <X size={18} />
+          </button>
+        </div>
 
       <div className="p-4">
         <button
@@ -234,5 +261,6 @@ export default function Sidebar({
         </Link>
       </div>
     </aside>
+    </>
   );
 }
