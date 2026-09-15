@@ -69,6 +69,88 @@ class MetadataBuilderTests(unittest.TestCase):
 		state = build_metadata_filter({"intent": "general", "metadata_filter": {}})
 		self.assertIsNone(state["metadata_filter"])
 
+	def test_resolved_case_id_narrows_case_law_filter_to_that_case(self):
+		state = build_metadata_filter({
+			"intent": "case_law",
+			"metadata_filter": {},
+			"resolved_case_id": "golaknath_1967",
+		})
+		self.assertEqual(
+			state["metadata_filter"],
+			{"document_type": {"$eq": "case_law"}, "case_id": {"$eq": "golaknath_1967"}},
+		)
+
+	def test_no_resolved_case_id_leaves_case_law_filter_corpus_wide(self):
+		state = build_metadata_filter({
+			"intent": "case_law",
+			"metadata_filter": {},
+			"resolved_case_id": None,
+		})
+		self.assertEqual(state["metadata_filter"], {"document_type": {"$eq": "case_law"}})
+
+	def test_resolved_case_id_ignored_outside_case_law_intent(self):
+		# A stray resolved_case_id must never narrow a non-case-law search --
+		# e.g. article intent should stay constitution-only regardless.
+		state = build_metadata_filter({
+			"intent": "article",
+			"metadata_filter": {"article": {"$eq": "21"}},
+			"resolved_case_id": "golaknath_1967",
+		})
+		self.assertNotIn("case_id", state["metadata_filter"])
+
+
+class CaseIdResolutionTests(unittest.TestCase):
+	"""Full analyze_query -> build_metadata_filter chain: a query naming one
+	known case should narrow retrieval to that case's own vectors instead of
+	searching the whole case-law corpus by embedding similarity alone (the
+	gap that let Kesavananda Bharati crowd Golak Nath out of its own
+	benchmark question's top 10 -- see ingestion.md)."""
+
+	def _resolve(self, query: str) -> dict:
+		state = build_metadata_filter(analyze_query({"query": query}))
+		return state["metadata_filter"]
+
+	def test_golaknath_query_narrows_to_golaknath(self):
+		self.assertEqual(
+			self._resolve("What did the Supreme Court decide in Golaknath v. State of Punjab?"),
+			{"document_type": {"$eq": "case_law"}, "case_id": {"$eq": "golaknath_1967"}},
+		)
+
+	def test_kesavananda_bharati_query_narrows_to_kesavananda(self):
+		self.assertEqual(
+			self._resolve("What is the basic structure doctrine established in Kesavananda Bharati?"),
+			{"document_type": {"$eq": "case_law"}, "case_id": {"$eq": "kesavananda_bharati_1973"}},
+		)
+
+	def test_bommai_query_narrows_to_bommai(self):
+		self.assertEqual(
+			self._resolve("What did S.R. Bommai decide about Article 356 and President's Rule?"),
+			{"document_type": {"$eq": "case_law"}, "case_id": {"$eq": "sr_bommai_1994"}},
+		)
+
+	def test_article_370_case_query_narrows_to_in_re_article_370(self):
+		self.assertEqual(
+			self._resolve("What did the Supreme Court hold in the Article 370 case?"),
+			{"document_type": {"$eq": "case_law"}, "case_id": {"$eq": "in_re_article_370_2023"}},
+		)
+
+	def test_bare_article_370_reference_is_not_forced_to_the_case(self):
+		# No case-law-flavored qualifier ("case"/"judgment"/"in re" ...) --
+		# this should stay a plain constitution-article lookup, not get
+		# rerouted to the case about that article.
+		filter_ = self._resolve("What is the constitutional meaning of Article 370?")
+		self.assertNotIn("case_id", filter_ or {})
+
+	def test_generic_case_law_query_stays_corpus_wide(self):
+		filter_ = self._resolve("What landmark case shaped the basic structure doctrine?")
+		self.assertEqual(filter_, {"document_type": {"$eq": "case_law"}})
+
+	def test_multi_case_query_does_not_force_a_single_case(self):
+		filter_ = self._resolve(
+			"Compare how Kesavananda Bharati and Golaknath treated Parliament's amending power."
+		)
+		self.assertEqual(filter_, {"document_type": {"$eq": "case_law"}})
+
 
 class RetrievalNodeTests(unittest.TestCase):
 	def test_document_type_filter_runs_a_single_search(self):

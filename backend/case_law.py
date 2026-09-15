@@ -128,3 +128,66 @@ CASE_METADATA = {
 # entry into CASE_METADATA above until scripts/index.py has confirmed it's
 # actually live in Pinecone.
 PENDING_CASE_METADATA = {}
+
+# Alias fragments used to resolve a query to one specific case_id, so a
+# case-law query can be narrowed to that one case's vectors instead of
+# searching the whole case-law corpus by embedding similarity alone (see
+# ingestion.md's retrieval-routing note -- that gap let a large judgment
+# on the same doctrine crowd a smaller one out of the top-K results, e.g.
+# Kesavananda Bharati crowding out Golaknath, which it discusses at
+# length while overturning it).
+#
+# Deliberately more specific than a bare petitioner/respondent surname
+# where that would collide with another case's party (e.g. "State of
+# Punjab" is Golaknath's respondent too, so it's left out here even
+# though it's fine as a broad classify_intent() signal). Bare "article
+# 370" is left out for the same reason -- it's inherently ambiguous with
+# a query about the constitutional provision itself -- so a query needs
+# a case-flavored qualifier ("... case", "... judgment", "in re article
+# 370", ...) to resolve to in_re_article_370_2023.
+CASE_NAME_ALIASES: dict[str, list[str]] = {
+	"maneka_gandhi_1978": ["maneka gandhi"],
+	"shreya_singhal_2015": ["shreya singhal"],
+	"minerva_mills_1980": ["minerva mills"],
+	"puttaswamy_2017": ["puttaswamy"],
+	"adr_v_election_commission_2024": ["association for democratic reforms"],
+	"state_of_punjab_v_davinder_singh_2024": ["davinder singh"],
+	"property_owners_association_2024": ["property owners association"],
+	"pooja_ramesh_singh_v_jk_bank_2026": ["pooja ramesh singh"],
+	"golaknath_1967": ["golaknath", "golak nath"],
+	"kesavananda_bharati_1973": ["kesavananda bharati", "kesavananda"],
+	"sr_bommai_1994": ["s.r. bommai", "sr bommai", "s. r. bommai", "bommai"],
+	"in_re_article_370_2023": [
+		"in re article 370",
+		"in re: article 370",
+		"article 370 case",
+		"article 370 judgment",
+		"article 370 judgement",
+		"article 370 verdict",
+		"article 370 ruling",
+	],
+}
+
+
+def resolve_case_ids(query: str) -> set[str]:
+	"""Return every known case_id whose alias appears in the query text."""
+	lowered = query.lower()
+	return {
+		case_id
+		for case_id, aliases in CASE_NAME_ALIASES.items()
+		if any(alias in lowered for alias in aliases)
+	}
+
+
+def resolve_single_case_id(query: str) -> str | None:
+	"""Return the one case_id a query's aliases identify.
+
+	None when zero aliases match (no case identified) or more than one
+	case's aliases match (query names multiple cases, or is otherwise not
+	confidently about a single one) -- both cases should fall back to
+	searching the whole case-law corpus rather than force a wrong filter.
+	"""
+	matches = resolve_case_ids(query)
+	if len(matches) == 1:
+		return next(iter(matches))
+	return None

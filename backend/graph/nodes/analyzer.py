@@ -2,6 +2,7 @@
 
 import re
 
+from backend.case_law import resolve_single_case_id
 from backend.graph.state import GraphState
 from backend.rag.retriever import extract_metadata_filter
 from scripts.chunk_case_law import CASE_METADATA
@@ -66,5 +67,6 @@ def analyze_query(state: GraphState) -> GraphState:
 		"original_query": state.get("original_query", query),
 		"metadata_filter": metadata_filter or None,
 		"intent": intent,
+		"resolved_case_id": resolve_single_case_id(query),
 		"retry_count": state.get("retry_count", 0),
 	}

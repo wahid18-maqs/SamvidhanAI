@@ -22,6 +22,17 @@ def build_metadata_filter(state: GraphState) -> GraphState:
 		# carry them, so keeping them here would zero out every match.
 		metadata_filter.pop("article", None)
 		metadata_filter.pop("clause", None)
+		# When analyze_query resolved the query to exactly one known case,
+		# narrow the search to that case's own vectors rather than letting a
+		# large judgment on the same doctrine crowd a smaller one out of the
+		# top-K by embedding similarity alone (see ingestion.md). No
+		# resolved_case_id means either no case was named, more than one
+		# was, or the match wasn't confident -- all three fall back to
+		# searching the whole case-law corpus, same as before this filter
+		# existed.
+		resolved_case_id = state.get("resolved_case_id")
+		if resolved_case_id:
+			metadata_filter["case_id"] = {"$eq": resolved_case_id}
 	if document_type:
 		metadata_filter["document_type"] = {"$eq": document_type}
 	return {**state, "metadata_filter": metadata_filter or None}
