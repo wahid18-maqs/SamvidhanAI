@@ -49,36 +49,11 @@ CASE_METADATA = {
 			"statutes."
 		),
 	},
-}
-
-# Cases identified for future ingestion. NOT yet indexed — do not move an
-# entry into CASE_METADATA above until scripts/index.py has confirmed it's
-# actually live in Pinecone.
-PENDING_CASE_METADATA = {
-	"kesavananda_bharati_1973": {
-		"case_name": "Kesavananda Bharati v. State of Kerala",
-		"year": 1973,
-		"court": "Supreme Court of India",
-		"related_articles": ["368", "13", "19", "31"],
-		"note": "Basic structure doctrine",
-	},
-	"golaknath_1967": {
-		"case_name": "I.C. Golaknath v. State of Punjab",
-		"year": 1967,
-		"court": "Supreme Court of India",
-		"related_articles": ["368", "13"],
-	},
 	"minerva_mills_1980": {
 		"case_name": "Minerva Mills v. Union of India",
 		"year": 1980,
 		"court": "Supreme Court of India",
 		"related_articles": ["368", "31C"],
-	},
-	"sr_bommai_1994": {
-		"case_name": "S.R. Bommai v. Union of India",
-		"year": 1994,
-		"court": "Supreme Court of India",
-		"related_articles": ["356"],
 	},
 	"puttaswamy_2017": {
 		"case_name": "K.S. Puttaswamy v. Union of India",
@@ -87,33 +62,28 @@ PENDING_CASE_METADATA = {
 		"related_articles": ["21"],
 		"note": "Right to privacy",
 	},
-	"in_re_article_370_2023": {
-		"case_name": "In Re: Article 370 of the Constitution",
-		"year": 2023,
-		"court": "Supreme Court of India",
-		"related_articles": ["370", "356"],
-		"note": "VERIFY during ingestion — confirm exact case title/citation before indexing",
-	},
 	"adr_v_election_commission_2024": {
 		"case_name": "Association for Democratic Reforms v. Union of India",
 		"year": 2024,
 		"court": "Supreme Court of India",
+		"citation": "2024 INSC 113",
 		"related_articles": ["19"],
-		"note": "Electoral bonds case — VERIFY exact case title/citation before indexing",
+		"note": "Electoral bonds case",
 	},
 	"state_of_punjab_v_davinder_singh_2024": {
 		"case_name": "State of Punjab v. Davinder Singh",
 		"year": 2024,
 		"court": "Supreme Court of India",
+		"citation": "2024 INSC 562",
 		"related_articles": ["341", "342", "15", "16"],
-		"note": "SC/ST sub-classification — VERIFY before indexing",
+		"note": "SC/ST sub-classification",
 	},
 	"property_owners_association_2024": {
 		"case_name": "Property Owners Association v. State of Maharashtra",
 		"year": 2024,
 		"court": "Supreme Court of India",
+		"citation": "2024 INSC 835",
 		"related_articles": ["39", "31C"],
-		"note": "VERIFY exact case title/citation before indexing",
 	},
 	"pooja_ramesh_singh_v_jk_bank_2026": {
 		"case_name": "Pooja Ramesh Singh v. Jammu and Kashmir Bank Ltd. & Anr.",
@@ -122,5 +92,65 @@ PENDING_CASE_METADATA = {
 		"citation": "2026 INSC 668",
 		"related_articles": [],
 		"note": "AI hallucinated precedents ruling. Left empty as it is not a fundamental rights case.",
+	},
+}
+
+# Cases identified for future ingestion. NOT yet indexed — do not move an
+# entry into CASE_METADATA above until scripts/index.py has confirmed it's
+# actually live in Pinecone.
+#
+# The 4 entries below are blocked on re-sourcing: the PDFs dropped into
+# data/raw/case_law/ for these were the WRONG document (verified by reading
+# the extracted text's own header/citation against the expected case) —
+# see ingestion.md. Their extracted (wrong) text was moved to
+# data/processed/case_law/_wrong_source/ so it can never be picked up by
+# scripts/chunk_case_law.py. Do NOT re-extract/chunk/index until the correct
+# source PDF replaces the current file.
+PENDING_CASE_METADATA = {
+	"kesavananda_bharati_1973": {
+		"case_name": "Kesavananda Bharati v. State of Kerala",
+		"year": 1973,
+		"court": "Supreme Court of India",
+		"related_articles": ["368", "13", "19", "31"],
+		"note": (
+			"Basic structure doctrine. BLOCKED: data/raw/case_law/"
+			"kesavananda_bharati_1973.pdf is the wrong document (contains "
+			"Maharao Sahib Shri Bhim Singhji v. Union of India, 1980) — "
+			"needs the correct source PDF."
+		),
+	},
+	"golaknath_1967": {
+		"case_name": "I.C. Golaknath v. State of Punjab",
+		"year": 1967,
+		"court": "Supreme Court of India",
+		"related_articles": ["368", "13"],
+		"note": (
+			"BLOCKED: data/raw/case_law/golaknath_1967.pdf is the wrong "
+			"document (contains Assam Sanmilita Mahasangha v. Union of "
+			"India, 2014) — needs the correct source PDF."
+		),
+	},
+	"sr_bommai_1994": {
+		"case_name": "S.R. Bommai v. Union of India",
+		"year": 1994,
+		"court": "Supreme Court of India",
+		"related_articles": ["356"],
+		"note": (
+			"BLOCKED: data/raw/case_law/sr_bommai_1994.pdf is the wrong "
+			"document (contains a 2008 Kerala HC sales-tax writ order, ~1.5KB "
+			"of text) — needs the correct source PDF."
+		),
+	},
+	"in_re_article_370_2023": {
+		"case_name": "In Re: Article 370 of the Constitution",
+		"year": 2023,
+		"court": "Supreme Court of India",
+		"related_articles": ["370", "356"],
+		"note": (
+			"BLOCKED: data/raw/case_law/in_re_article_370_2023.pdf is only a "
+			"procedural 'Record of Proceedings' from an Aug 8, 2023 hearing, "
+			"not the final substantive judgment delivered Dec 11, 2023 — "
+			"needs the correct source PDF."
+		),
 	},
 }

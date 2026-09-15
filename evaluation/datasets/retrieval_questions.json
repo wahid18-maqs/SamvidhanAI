@@ -190,5 +190,41 @@
     "question": "How did Shreya Singhal's judgment address Section 66A of the Information Technology Act?",
     "expected_source_ids": ["shreya_singhal_2015"],
     "category": "case-law"
+  },
+  {
+    "id": "q33",
+    "question": "What did the Supreme Court hold in Minerva Mills v. Union of India about the limits of Parliament's power to amend the Constitution under Article 368?",
+    "expected_source_ids": ["minerva_mills_1980"],
+    "category": "case-law"
+  },
+  {
+    "id": "q34",
+    "question": "How did the Supreme Court recognize the right to privacy as a fundamental right in K.S. Puttaswamy v. Union of India?",
+    "expected_source_ids": ["puttaswamy_2017"],
+    "category": "case-law"
+  },
+  {
+    "id": "q35",
+    "question": "Why did the Supreme Court strike down the electoral bonds scheme in Association for Democratic Reforms v. Union of India?",
+    "expected_source_ids": ["adr_v_election_commission_2024"],
+    "category": "case-law"
+  },
+  {
+    "id": "q36",
+    "question": "What did the Supreme Court hold about sub-classification within Scheduled Castes and Scheduled Tribes in State of Punjab v. Davinder Singh?",
+    "expected_source_ids": ["state_of_punjab_v_davinder_singh_2024"],
+    "category": "case-law"
+  },
+  {
+    "id": "q37",
+    "question": "How did the Supreme Court interpret 'material resources of the community' under Article 39(b) in Property Owners Association v. State of Maharashtra?",
+    "expected_source_ids": ["property_owners_association_2024"],
+    "category": "case-law"
+  },
+  {
+    "id": "q38",
+    "question": "What did the Supreme Court say about AI-generated hallucinated case citations in Pooja Ramesh Singh v. Jammu and Kashmir Bank Ltd.?",
+    "expected_source_ids": ["pooja_ramesh_singh_v_jk_bank_2026"],
+    "category": "case-law"
   }
 ]
