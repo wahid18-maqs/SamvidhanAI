@@ -226,5 +226,29 @@
     "question": "What did the Supreme Court say about AI-generated hallucinated case citations in Pooja Ramesh Singh v. Jammu and Kashmir Bank Ltd.?",
     "expected_source_ids": ["pooja_ramesh_singh_v_jk_bank_2026"],
     "category": "case-law"
+  },
+  {
+    "id": "q39",
+    "question": "What did the Supreme Court hold in I.C. Golaknath v. State of Punjab about Parliament's power to amend Fundamental Rights?",
+    "expected_source_ids": ["golaknath_1967"],
+    "category": "case-law"
+  },
+  {
+    "id": "q40",
+    "question": "What is the basic structure doctrine established in Kesavananda Bharati v. State of Kerala?",
+    "expected_source_ids": ["kesavananda_bharati_1973"],
+    "category": "case-law"
+  },
+  {
+    "id": "q41",
+    "question": "What did S.R. Bommai v. Union of India decide about the President's power to impose Article 356 on state governments?",
+    "expected_source_ids": ["sr_bommai_1994"],
+    "category": "case-law"
+  },
+  {
+    "id": "q42",
+    "question": "What did the Supreme Court's final judgment on 11 December 2023 hold in In Re: Article 370 of the Constitution?",
+    "expected_source_ids": ["in_re_article_370_2023"],
+    "category": "case-law"
   }
 ]
