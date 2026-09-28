@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import {
   BookOpen,
@@ -6,6 +6,9 @@ import {
   ChevronRight,
   Gavel,
   Landmark,
+  Menu,
+  PanelLeftClose,
+  PanelLeftOpen,
   Scale,
   Search,
   Settings,
@@ -35,7 +38,9 @@ const DIRECTIVE_PRINCIPLES_ITEMS = [
   { key: "liberal_intellectual", label: "Liberal-Intellectual Principles" },
 ];
 
-function SubItem({ label, onClick, disabled }) {
+function SubItem({ label, onClick, disabled, collapsed = false }) {
+  if (collapsed) return null;
+
   if (disabled) {
     return (
       <span
@@ -57,7 +62,23 @@ function SubItem({ label, onClick, disabled }) {
   );
 }
 
-function NavGroup({ icon: Icon, label, expanded, onToggle, children }) {
+function NavGroup({ icon: Icon, label, expanded, onToggle, children, collapsed = false }) {
+  if (collapsed) {
+    return (
+      <div>
+        <button
+          type="button"
+          onClick={onToggle}
+          aria-label={label}
+          title={label}
+          className="flex w-full items-center justify-center rounded-lg p-2.5 text-muted transition hover:bg-border/60 hover:text-heading"
+        >
+          <Icon size={16} className="shrink-0" />
+        </button>
+      </div>
+    );
+  }
+
   return (
     <div>
       <button
@@ -86,9 +107,25 @@ export default function Sidebar({
   onCaseAnalysis,
 }) {
   const [expanded, setExpanded] = useState(null); // which single group is open, or null
+  const [isCollapsed, setIsCollapsed] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return localStorage.getItem("samvidhanai-sidebar-collapsed") === "true";
+  });
   const [articleNumber, setArticleNumber] = useState("");
   const [topicQuery, setTopicQuery] = useState("");
   const [fulltextQuery, setFulltextQuery] = useState("");
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      localStorage.setItem("samvidhanai-sidebar-collapsed", String(isCollapsed));
+    }
+  }, [isCollapsed]);
+
+  useEffect(() => {
+    if (isCollapsed) {
+      setExpanded(null);
+    }
+  }, [isCollapsed]);
 
   function toggle(name) {
     setExpanded((current) => (current === name ? null : name));
@@ -129,30 +166,46 @@ export default function Sidebar({
         />
       )}
       <aside
-        className={`fixed inset-y-0 left-0 z-40 flex h-screen w-72 max-w-[85vw] shrink-0 flex-col border-r border-border bg-panel transition-transform duration-200 lg:static lg:z-auto lg:w-72 lg:max-w-none lg:translate-x-0 ${
-          open ? "translate-x-0" : "-translate-x-full"
-        }`}
+        className={`fixed inset-y-0 left-0 z-40 flex h-screen max-w-[85vw] shrink-0 flex-col border-r border-border bg-panel transition-all duration-200 lg:static lg:z-auto lg:translate-x-0 ${
+          isCollapsed ? "w-16 lg:w-16" : "w-72 lg:w-72"
+        } ${open ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}`}
       >
-        <div className="flex h-16 items-center gap-2.5 border-b border-border px-5">
-          <Landmark size={20} className="shrink-0 text-gold" />
-          <span className="flex-1 font-semibold tracking-wide text-heading">SamvidhanAI</span>
+        <div className={`flex h-16 items-center border-b border-border ${isCollapsed ? "justify-center px-2" : "gap-2.5 px-5"}`}>
+          {!isCollapsed && <Landmark size={20} className="shrink-0 text-gold" />}
+          {!isCollapsed && <span className="flex-1 font-semibold tracking-wide text-heading">SamvidhanAI</span>}
           <button
             type="button"
-            onClick={onClose}
-            aria-label="Close menu"
-            className="shrink-0 text-muted hover:text-heading lg:hidden"
+            onClick={() => setIsCollapsed((current) => !current)}
+            aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+            title={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-muted transition hover:bg-border/60 hover:text-heading"
           >
-            <X size={18} />
+            {isCollapsed ? <PanelLeftOpen size={18} /> : <PanelLeftClose size={18} />}
           </button>
+          {!isCollapsed && (
+            <button
+              type="button"
+              onClick={onClose}
+              aria-label="Close menu"
+              className="shrink-0 text-muted hover:text-heading lg:hidden"
+            >
+              <X size={18} />
+            </button>
+          )}
         </div>
 
-      <div className="p-4">
+      <div className={isCollapsed ? "p-2" : "p-4"}>
         <button
           type="button"
           onClick={onNewChat}
-          className="flex w-full items-center justify-center gap-2.5 rounded-xl bg-gold-gradient px-4 py-2.5 text-sm font-medium text-base shadow-lg transition hover:opacity-95"
+          title="New Chat"
+          aria-label="New Chat"
+          className={`flex items-center justify-center rounded-xl bg-gold-gradient shadow-lg transition hover:opacity-95 ${
+            isCollapsed ? "h-10 w-10 p-0" : "w-full gap-2.5 px-4 py-2.5 text-sm font-medium text-base"
+          }`}
         >
-          + New Chat
+          <span className={isCollapsed ? "text-lg leading-none" : undefined}>+</span>
+          {!isCollapsed && <span>New Chat</span>}
         </button>
       </div>
 
@@ -162,53 +215,58 @@ export default function Sidebar({
           label="Search Articles"
           expanded={expanded === "search"}
           onToggle={() => toggle("search")}
+          collapsed={isCollapsed}
         >
-          <form onSubmit={submitArticleNumber} className="flex gap-1.5 px-3 py-1.5">
-            <input
-              type="text"
-              inputMode="numeric"
-              value={articleNumber}
-              onChange={(event) => setArticleNumber(event.target.value)}
-              placeholder="Article #"
-              className="w-full min-w-0 rounded-md border border-border bg-base px-2 py-1 text-xs text-heading placeholder-muted focus:border-gold focus:outline-none"
-            />
-            <button
-              type="submit"
-              className="shrink-0 rounded-md bg-gold-gradient px-2.5 py-1 text-xs font-medium text-base"
-            >
-              Go
-            </button>
-          </form>
-          <form onSubmit={submitTopicSearch} className="flex gap-1.5 px-3 py-1.5">
-            <input
-              type="text"
-              value={topicQuery}
-              onChange={(event) => setTopicQuery(event.target.value)}
-              placeholder="Search by topic…"
-              className="w-full min-w-0 rounded-md border border-border bg-base px-2 py-1 text-xs text-heading placeholder-muted focus:border-gold focus:outline-none"
-            />
-            <button
-              type="submit"
-              className="shrink-0 rounded-md bg-gold-gradient px-2.5 py-1 text-xs font-medium text-base"
-            >
-              Go
-            </button>
-          </form>
-          <form onSubmit={submitFulltextSearch} className="flex gap-1.5 px-3 py-1.5">
-            <input
-              type="text"
-              value={fulltextQuery}
-              onChange={(event) => setFulltextQuery(event.target.value)}
-              placeholder="Exact phrase…"
-              className="w-full min-w-0 rounded-md border border-border bg-base px-2 py-1 text-xs text-heading placeholder-muted focus:border-gold focus:outline-none"
-            />
-            <button
-              type="submit"
-              className="shrink-0 rounded-md bg-gold-gradient px-2.5 py-1 text-xs font-medium text-base"
-            >
-              Go
-            </button>
-          </form>
+          {!isCollapsed && (
+            <>
+              <form onSubmit={submitArticleNumber} className="flex gap-1.5 px-3 py-1.5">
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  value={articleNumber}
+                  onChange={(event) => setArticleNumber(event.target.value)}
+                  placeholder="Article #"
+                  className="w-full min-w-0 rounded-md border border-border bg-base px-2 py-1 text-xs text-heading placeholder-muted focus:border-gold focus:outline-none"
+                />
+                <button
+                  type="submit"
+                  className="shrink-0 rounded-md bg-gold-gradient px-2.5 py-1 text-xs font-medium text-base"
+                >
+                  Go
+                </button>
+              </form>
+              <form onSubmit={submitTopicSearch} className="flex gap-1.5 px-3 py-1.5">
+                <input
+                  type="text"
+                  value={topicQuery}
+                  onChange={(event) => setTopicQuery(event.target.value)}
+                  placeholder="Search by topic…"
+                  className="w-full min-w-0 rounded-md border border-border bg-base px-2 py-1 text-xs text-heading placeholder-muted focus:border-gold focus:outline-none"
+                />
+                <button
+                  type="submit"
+                  className="shrink-0 rounded-md bg-gold-gradient px-2.5 py-1 text-xs font-medium text-base"
+                >
+                  Go
+                </button>
+              </form>
+              <form onSubmit={submitFulltextSearch} className="flex gap-1.5 px-3 py-1.5">
+                <input
+                  type="text"
+                  value={fulltextQuery}
+                  onChange={(event) => setFulltextQuery(event.target.value)}
+                  placeholder="Exact phrase…"
+                  className="w-full min-w-0 rounded-md border border-border bg-base px-2 py-1 text-xs text-heading placeholder-muted focus:border-gold focus:outline-none"
+                />
+                <button
+                  type="submit"
+                  className="shrink-0 rounded-md bg-gold-gradient px-2.5 py-1 text-xs font-medium text-base"
+                >
+                  Go
+                </button>
+              </form>
+            </>
+          )}
         </NavGroup>
 
         <NavGroup
@@ -216,10 +274,12 @@ export default function Sidebar({
           label="Fundamental Rights"
           expanded={expanded === "fundamental_rights"}
           onToggle={() => toggle("fundamental_rights")}
+          collapsed={isCollapsed}
         >
-          {FUNDAMENTAL_RIGHTS_ITEMS.map((item) => (
-            <SubItem key={item.key} label={item.label} onClick={() => onCategorySelect(item.key, item.label)} />
-          ))}
+          {!isCollapsed &&
+            FUNDAMENTAL_RIGHTS_ITEMS.map((item) => (
+              <SubItem key={item.key} label={item.label} onClick={() => onCategorySelect(item.key, item.label)} />
+            ))}
         </NavGroup>
 
         <NavGroup
@@ -227,10 +287,12 @@ export default function Sidebar({
           label="Directive Principles"
           expanded={expanded === "directive_principles"}
           onToggle={() => toggle("directive_principles")}
+          collapsed={isCollapsed}
         >
-          {DIRECTIVE_PRINCIPLES_ITEMS.map((item) => (
-            <SubItem key={item.key} label={item.label} onClick={() => onCategorySelect(item.key, item.label)} />
-          ))}
+          {!isCollapsed &&
+            DIRECTIVE_PRINCIPLES_ITEMS.map((item) => (
+              <SubItem key={item.key} label={item.label} onClick={() => onCategorySelect(item.key, item.label)} />
+            ))}
         </NavGroup>
 
         <NavGroup
@@ -238,28 +300,56 @@ export default function Sidebar({
           label="Case Studies"
           expanded={expanded === "case_studies"}
           onToggle={() => toggle("case_studies")}
+          collapsed={isCollapsed}
         >
-          <SubItem label="Landmark Judgments" onClick={onCasesSelect} />
-          <SubItem label="Case Analysis" onClick={onCaseAnalysis} />
+          {!isCollapsed && (
+            <>
+              <SubItem label="Landmark Judgments" onClick={onCasesSelect} />
+              <SubItem label="Case Analysis" onClick={onCaseAnalysis} />
+            </>
+          )}
         </NavGroup>
       </nav>
 
-      <div className="space-y-1.5 px-3 pb-4">
-        <Link
-          to="/history"
-          className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-sm text-muted transition hover:bg-border/60 hover:text-heading"
-        >
-          <BookOpen size={16} className="shrink-0" />
-          History
-        </Link>
-        <Link
-          to="/settings"
-          className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-sm text-muted transition hover:bg-border/60 hover:text-heading"
-        >
-          <Settings size={16} className="shrink-0" />
-          Settings
-        </Link>
-      </div>
+      {!isCollapsed && (
+        <div className="space-y-1.5 px-3 pb-4">
+          <Link
+            to="/history"
+            className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-sm text-muted transition hover:bg-border/60 hover:text-heading"
+          >
+            <BookOpen size={16} className="shrink-0" />
+            History
+          </Link>
+          <Link
+            to="/settings"
+            className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-sm text-muted transition hover:bg-border/60 hover:text-heading"
+          >
+            <Settings size={16} className="shrink-0" />
+            Settings
+          </Link>
+        </div>
+      )}
+
+      {isCollapsed && (
+        <div className="space-y-1.5 px-2 pb-4">
+          <Link
+            to="/history"
+            aria-label="History"
+            title="History"
+            className="flex w-full items-center justify-center rounded-lg p-2.5 text-muted transition hover:bg-border/60 hover:text-heading"
+          >
+            <BookOpen size={16} className="shrink-0" />
+          </Link>
+          <Link
+            to="/settings"
+            aria-label="Settings"
+            title="Settings"
+            className="flex w-full items-center justify-center rounded-lg p-2.5 text-muted transition hover:bg-border/60 hover:text-heading"
+          >
+            <Settings size={16} className="shrink-0" />
+          </Link>
+        </div>
+      )}
     </aside>
     </>
   );
