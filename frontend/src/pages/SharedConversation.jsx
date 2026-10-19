@@ -31,7 +31,7 @@ export default function SharedConversation() {
         <div className="mx-auto max-w-2xl">
           <div className="mb-4 flex items-center justify-between">
             <h1 className="text-lg font-semibold text-heading">Shared conversation</h1>
-            <Link to="/chat" className="text-sm text-gold underline">
+            <Link to="/chat" className="text-sm text-body underline decoration-border-strong underline-offset-4">
               Open SamvidhanAI
             </Link>
           </div>

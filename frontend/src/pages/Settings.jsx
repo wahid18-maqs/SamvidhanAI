@@ -6,7 +6,7 @@ import { useAuth } from "../context/AuthContext";
  * Account Details is sourced straight from the existing Supabase Auth
  * session (client-side, same as TopBar's avatar) — no new backend call
  * needed, `user.id`/`user.email`/`user.created_at` are already there.
- * Display Theme: the app's dark navy/gold palette (Ui updates and
+ * Display Theme: the app's neutral dark palette (Ui updates and
  * features.md Part 1) is the one locked design system, not a toggle
  * between two built themes — this section confirms that rather than
  * building a real, separately-designed light mode with no spec of its
@@ -19,7 +19,7 @@ export default function Settings() {
       <div className="mx-auto max-w-2xl">
         <div className="mb-6 flex items-center justify-between">
           <h1 className="text-lg font-semibold text-heading">Settings</h1>
-          <Link to="/chat" className="text-sm text-gold underline">
+          <Link to="/chat" className="text-sm text-body underline decoration-border-strong underline-offset-4">
             Back to chat
           </Link>
         </div>
@@ -56,11 +56,11 @@ export default function Settings() {
         <section className="rounded-xl border border-border bg-panel p-5">
           <h2 className="text-sm font-semibold text-heading">Display Theme</h2>
           <div className="mt-3 flex items-center gap-2.5 rounded-lg border border-border bg-base/60 px-3 py-2.5 text-sm text-body">
-            <Moon size={16} className="shrink-0 text-gold" />
+            <Moon size={16} className="shrink-0 text-muted" />
             <span>Dark — the only theme currently available.</span>
           </div>
           <p className="mt-2 text-xs text-muted">
-            SamvidhanAI uses one locked dark/gold design system today. A separately-designed
+            SamvidhanAI uses one locked neutral dark design system today. A separately-designed
             light theme isn't built yet.
           </p>
         </section>

@@ -41,7 +41,7 @@ function FeedbackRow({ messageId }) {
         onClick={() => choose("positive")}
         disabled={choice !== null}
         aria-label="Helpful"
-        className={choice === "positive" ? "text-gold" : "text-muted hover:text-heading"}
+        className={`rounded-full p-1.5 transition hover:bg-border/60 ${choice === "positive" ? "text-heading" : "text-muted hover:text-heading"}`}
       >
         <ThumbsUp size={15} />
       </button>
@@ -50,7 +50,7 @@ function FeedbackRow({ messageId }) {
         onClick={() => choose("negative")}
         disabled={choice !== null}
         aria-label="Not helpful"
-        className={choice === "negative" ? "text-gold" : "text-muted hover:text-heading"}
+        className={`rounded-full p-1.5 transition hover:bg-border/60 ${choice === "negative" ? "text-heading" : "text-muted hover:text-heading"}`}
       >
         <ThumbsDown size={15} />
       </button>
@@ -60,7 +60,7 @@ function FeedbackRow({ messageId }) {
   );
 }
 
-/** Per Section 1.4: user messages are right-aligned navy bubbles; AI
+/** Per Section 1.4: user messages are right-aligned bubbles; AI
  * messages flow left-aligned with no bubble, structured as Summary ->
  * section headers -> Key Clauses -> Explanation, each citation attached to
  * the specific piece of content it supports. History-loaded messages carry
@@ -84,7 +84,7 @@ export default function MessageBubble({
   if (role === "user") {
     return (
       <div className="flex justify-end">
-        <div className="max-w-lg rounded-2xl border border-border-strong/50 bg-border px-4 py-2 text-sm text-heading">
+        <div className="max-w-[70%] rounded-3xl bg-[#383838] px-4 py-2.5 text-[15px] text-heading">
           {content}
         </div>
       </div>
@@ -94,7 +94,7 @@ export default function MessageBubble({
   const hasStructure = summary || sections?.length || keyClauses?.length || explanation;
   if (!hasStructure) {
     return (
-      <div className="max-w-2xl space-y-4 rounded-2xl border border-border bg-panel p-4 text-sm text-body">
+      <div className="max-w-3xl space-y-4 text-[15px] leading-7 text-body">
         <p className="whitespace-pre-wrap">{content}</p>
         <CitationRow citations={citations} onCitationClick={onCitationClick} />
         {!readOnly && <FeedbackRow messageId={id} />}
@@ -102,11 +102,13 @@ export default function MessageBubble({
     );
   }
 
+  const isShortReply = !sections?.length && !keyClauses?.length && explanation?.includes("This is a research aid, not legal advice.");
+
   return (
-    <div className="max-w-2xl space-y-4 rounded-2xl border border-border bg-panel p-4 text-sm text-body">
+    <div className="max-w-3xl space-y-5 text-[15px] leading-7 text-body">
       {summary && (
         <p>
-          <span className="font-semibold text-heading">Summary: </span>
+          {!isShortReply && <span className="font-semibold text-heading">Summary: </span>}
           {summary}
         </p>
       )}
@@ -120,7 +122,7 @@ export default function MessageBubble({
       ))}
 
       {keyClauses?.length > 0 && (
-        <div className="rounded-xl border border-border bg-base/60 p-4">
+        <div>
           <h3 className="font-semibold text-heading">Key Clauses</h3>
           <ul className="mt-2 list-disc space-y-2 pl-5">
             {keyClauses.map((clause, index) => (
@@ -133,12 +135,14 @@ export default function MessageBubble({
         </div>
       )}
 
-      {explanation && (
+      {explanation && !isShortReply && (
         <div>
           <h3 className="font-semibold text-heading">Explanation</h3>
           <p className="mt-1 whitespace-pre-wrap text-body-muted">{explanation}</p>
         </div>
       )}
+
+      {isShortReply && <p className="text-xs leading-5 text-muted">{explanation}</p>}
 
       {!readOnly && <FeedbackRow messageId={id} />}
     </div>

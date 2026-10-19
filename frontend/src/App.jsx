@@ -3,7 +3,6 @@ import { AuthProvider } from "./context/AuthContext";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Login from "./pages/Login";
 import Chat from "./pages/Chat";
-import History from "./pages/History";
 import Settings from "./pages/Settings";
 import SharedConversation from "./pages/SharedConversation";
 
@@ -18,14 +17,6 @@ export default function App() {
             element={
               <ProtectedRoute>
                 <Chat />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/history"
-            element={
-              <ProtectedRoute>
-                <History />
               </ProtectedRoute>
             }
           />

@@ -34,7 +34,7 @@ export default function LanguageSelector({ value, onChange }) {
       value={value}
       onChange={(event) => onChange(event.target.value)}
       aria-label="Response language"
-      className="rounded-full border border-border bg-panel px-2 py-1 text-xs text-body focus:border-gold focus:outline-none"
+      className="rounded-full border border-border bg-panel px-2 py-1 text-xs text-body outline-none transition hover:bg-border/40 focus:border-border-strong"
     >
       {LANGUAGES.map((language) => (
         <option key={language.code} value={language.code}>

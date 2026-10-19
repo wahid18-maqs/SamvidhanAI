@@ -87,7 +87,7 @@ export default function SourceExplorer({ request, onClose }) {
           <div className="space-y-5">
             {analyses.map((item) => (
               <div key={item.case_id}>
-                <p className="text-xs font-medium uppercase tracking-wide text-gold">
+                <p className="text-xs font-medium uppercase tracking-wide text-heading">
                   {item.case_name}
                   {item.year ? ` (${item.year})` : ""}
                 </p>
@@ -166,7 +166,7 @@ function ResultRow({ result }) {
         )}
         <div className="min-w-0 flex-1">
           <div className="flex items-center justify-between gap-2">
-            <p className="text-xs font-medium uppercase tracking-wide text-gold">{result.label}</p>
+            <p className="text-xs font-medium uppercase tracking-wide text-heading">{result.label}</p>
             {result.score != null && (
               <span className="shrink-0 text-xs text-muted">{result.score.toFixed(2)}</span>
             )}

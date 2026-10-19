@@ -46,7 +46,7 @@ export default function Login() {
     <div className="flex min-h-screen items-center justify-center bg-base px-4">
       <div className="w-full max-w-sm rounded-2xl border border-border bg-panel p-8 shadow-2xl">
         <div className="flex items-center justify-center gap-2">
-          <Landmark size={22} className="text-gold" />
+          <Landmark size={22} className="text-muted" />
           <h1 className="text-center text-2xl font-semibold text-heading">SamvidhanAI</h1>
         </div>
         <p className="mt-1 text-center text-sm text-muted">
@@ -83,7 +83,7 @@ export default function Login() {
         </div>
 
         {checkEmail ? (
-          <p className="mt-6 rounded-md bg-gold/10 p-3 text-sm text-body">
+          <p className="mt-6 rounded-md bg-border/40 p-3 text-sm text-body">
             Check your email to confirm your account, then sign in.
           </p>
         ) : (
@@ -98,7 +98,7 @@ export default function Login() {
                 required
                 value={email}
                 onChange={(event) => setEmail(event.target.value)}
-                className="mt-1 w-full rounded-md border border-border bg-base px-3 py-2 text-sm text-heading focus:border-gold focus:outline-none"
+                className="mt-1 w-full rounded-md border border-border bg-base px-3 py-2 text-sm text-heading focus:border-border-strong focus:outline-none"
               />
             </div>
             <div>
@@ -112,7 +112,7 @@ export default function Login() {
                 minLength={6}
                 value={password}
                 onChange={(event) => setPassword(event.target.value)}
-                className="mt-1 w-full rounded-md border border-border bg-base px-3 py-2 text-sm text-heading focus:border-gold focus:outline-none"
+                className="mt-1 w-full rounded-md border border-border bg-base px-3 py-2 text-sm text-heading focus:border-border-strong focus:outline-none"
               />
             </div>
 
@@ -121,7 +121,7 @@ export default function Login() {
             <button
               type="submit"
               disabled={submitting}
-              className="w-full rounded-full bg-gold-gradient py-2 text-sm font-semibold text-base transition hover:opacity-95 disabled:opacity-60"
+              className="w-full rounded-full bg-[#ececec] py-2 text-sm font-semibold text-[#202020] transition hover:bg-white disabled:opacity-60"
             >
               {submitting ? "Please wait…" : mode === "signin" ? "Sign in" : "Sign up"}
             </button>

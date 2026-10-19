@@ -4,6 +4,7 @@ import Sidebar from "../components/Sidebar";
 import TopBar from "../components/TopBar";
 import MessageBubble from "../components/MessageBubble";
 import SourceExplorer from "../components/SourceExplorer";
+import ChatComposer from "../components/ChatComposer";
 import {
   getArticleGroup,
   getCaseAnalyses,
@@ -12,8 +13,6 @@ import {
   getSource,
   postChat,
   postShare,
-  search,
-  searchFulltext,
 } from "../services/api";
 
 /**
@@ -26,7 +25,6 @@ import {
  */
 export default function Chat() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const [searchValue, setSearchValue] = useState("");
   const [messages, setMessages] = useState([]);
   const [draft, setDraft] = useState("");
   const [conversationId, setConversationId] = useState(
@@ -38,7 +36,19 @@ export default function Chat() {
   const [language, setLanguage] = useState("en");
   const [shareStatus, setShareStatus] = useState(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const searchInputRef = useRef(null);
+  const [conversationRefreshKey, setConversationRefreshKey] = useState(0);
+  const refreshedNewConversation = useRef(false);
+  const messagesRegionRef = useRef(null);
+  const shouldAutoScrollRef = useRef(true);
+
+  useEffect(() => {
+    const region = messagesRegionRef.current;
+    if (!region || !shouldAutoScrollRef.current) return undefined;
+    const frame = requestAnimationFrame(() => {
+      region.scrollTo({ top: region.scrollHeight, behavior: "smooth" });
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [messages]);
 
   // Loading an existing conversation from History (?conversation=<id>).
   // Structured messages (summary/sections/key_clauses/explanation) are
@@ -68,12 +78,12 @@ export default function Chat() {
   function handleNewChat() {
     setMessages([]);
     setDraft("");
-    setSearchValue("");
     setError(null);
     setExplorerRequest(null);
     setConversationId(crypto.randomUUID());
     setSearchParams({});
     setSidebarOpen(false);
+    refreshedNewConversation.current = false;
   }
 
   async function sendMessage(text) {
@@ -98,6 +108,10 @@ export default function Chat() {
           explanation: response.explanation,
         },
       ]);
+      if (!searchParams.get("conversation") && !refreshedNewConversation.current) {
+        refreshedNewConversation.current = true;
+        setConversationRefreshKey((current) => current + 1);
+      }
     } catch (err) {
       setError(err.message || "Something went wrong. Please try again.");
     } finally {
@@ -111,15 +125,8 @@ export default function Chat() {
     setDraft("");
   }
 
-  function handleSearchSubmit(event) {
-    event.preventDefault();
-    if (!searchValue.trim()) return;
-    sendMessage(searchValue);
-    setSearchValue("");
-  }
-
   function handleQuickAction(label) {
-    setSearchValue("");
+    setDraft("");
     sendMessage(label);
   }
 
@@ -139,32 +146,6 @@ export default function Chat() {
     setExplorerRequest({
       title: "Landmark Judgments",
       load: () => getCases().then((data) => ({ title: data.label, sources: data.sources })),
-    });
-    setSidebarOpen(false);
-  }
-
-  function handleArticleNumber(number) {
-    const label = `Article ${number}`;
-    setExplorerRequest({
-      title: label,
-      load: () => getSource(`article_${number}`).then((source) => ({ title: label, sources: [source] })),
-    });
-    setSidebarOpen(false);
-  }
-
-  function handleTopicSearch(query) {
-    setExplorerRequest({
-      title: `Search: ${query}`,
-      load: () => search(query).then((data) => ({ title: `Search: ${data.query}`, results: data.results })),
-    });
-    setSidebarOpen(false);
-  }
-
-  function handleFulltextSearch(query) {
-    setExplorerRequest({
-      title: `Full-Text: ${query}`,
-      load: () =>
-        searchFulltext(query).then((data) => ({ title: `Full-Text: ${data.query}`, results: data.results })),
     });
     setSidebarOpen(false);
   }
@@ -200,64 +181,73 @@ export default function Chat() {
   }
 
   return (
-    <div className="flex h-screen bg-base">
+    <div className="flex h-dvh min-h-0 overflow-hidden bg-base">
       <Sidebar
         open={sidebarOpen}
+        onOpen={() => setSidebarOpen(true)}
         onClose={() => setSidebarOpen(false)}
         onNewChat={handleNewChat}
         onCategorySelect={handleCategorySelect}
         onCasesSelect={handleCasesSelect}
-        onArticleNumber={handleArticleNumber}
-        onTopicSearch={handleTopicSearch}
-        onFulltextSearch={handleFulltextSearch}
         onCaseAnalysis={handleCaseAnalysis}
+        conversationRefreshKey={conversationRefreshKey}
+        activeConversationId={conversationId}
       />
 
-      <div className="flex min-w-0 flex-1 flex-col">
+      <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
         <TopBar
-          onMenuClick={() => setSidebarOpen(true)}
-          searchValue={searchValue}
-          onSearchChange={setSearchValue}
-          onSearchSubmit={handleSearchSubmit}
-          onQuickAction={handleQuickAction}
-          searchInputRef={searchInputRef}
           language={language}
           onLanguageChange={setLanguage}
           onShare={handleShare}
           shareStatus={shareStatus}
         />
 
-        <main className="flex-1 space-y-6 overflow-y-auto p-4 sm:p-6">
-          {messages.length === 0 ? (
-            <p className="text-sm text-muted">
-              Ask a question about the Constitution to get started.
-            </p>
-          ) : (
-            messages.map((message) => (
-              <MessageBubble key={message.id} {...message} onCitationClick={handleCitationClick} />
-            ))
-          )}
-          {sending && <p className="text-sm text-muted">Thinking…</p>}
-          {error && <p className="text-sm text-red-400">{error}</p>}
-        </main>
-
-        <form onSubmit={handleDraftSubmit} className="flex gap-2 border-t border-border bg-base px-4 py-4 sm:px-6">
-          <input
-            type="text"
-            value={draft}
-            onChange={(event) => setDraft(event.target.value)}
-            placeholder="Type your question…"
-            disabled={sending}
-            className="min-w-0 flex-1 rounded-xl border border-border bg-panel px-4 py-2 text-sm text-heading placeholder-muted focus:border-gold focus:outline-none disabled:opacity-60"
-          />
-          <button
-            type="submit"
-            disabled={sending}
-            className="shrink-0 rounded-xl bg-gold-gradient px-5 py-2 text-sm font-medium text-base transition hover:opacity-95 disabled:opacity-60"
-          >
-            Send
-          </button>
-        </form>
+        {messages.length === 0 ? (
+          <main className="flex min-h-0 flex-1 flex-col justify-center overflow-hidden bg-[#212121] px-4 py-10 sm:px-6">
+            <div className="mx-auto w-full max-w-3xl">
+              <ChatComposer
+                value={draft}
+                onChange={setDraft}
+                onSubmit={handleDraftSubmit}
+                onSuggestion={handleQuickAction}
+                disabled={sending}
+                active={false}
+              />
+            </div>
+          </main>
+        ) : (
+          <div className="flex min-h-0 flex-1 flex-col bg-[#212121]">
+            <main
+              ref={messagesRegionRef}
+              onScroll={(event) => {
+                const region = event.currentTarget;
+                shouldAutoScrollRef.current =
+                  region.scrollHeight - region.scrollTop - region.clientHeight < 96;
+              }}
+              className="min-h-0 flex-1 overflow-y-auto"
+            >
+              <div className="mx-auto flex w-full max-w-3xl flex-col gap-6 px-4 py-6 pb-10 sm:px-6">
+                {messages.map((message) => (
+                  <MessageBubble key={message.id} {...message} onCitationClick={handleCitationClick} />
+                ))}
+                {sending && <p className="text-sm text-[#9b9b9b]">Thinking…</p>}
+                {error && <p className="text-sm text-red-400">{error}</p>}
+              </div>
+            </main>
+            <footer className="shrink-0 bg-[#212121] px-4 pb-[calc(1rem+env(safe-area-inset-bottom))] pt-2 sm:px-6">
+              <div className="mx-auto max-w-3xl">
+                <ChatComposer
+                  value={draft}
+                  onChange={setDraft}
+                  onSubmit={handleDraftSubmit}
+                  onSuggestion={handleQuickAction}
+                  disabled={sending}
+                  active
+                />
+              </div>
+            </footer>
+          </div>
+        )}
       </div>
 
       {explorerRequest && (
