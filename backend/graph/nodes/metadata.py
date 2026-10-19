@@ -1,5 +1,6 @@
 """Metadata builder node: combines intent with the analyzer's regex filter."""
 
+from backend.case_law import CASE_METADATA
 from backend.graph.state import GraphState
 
 # Section 6 routing table: which document_type an intent should search.
@@ -33,6 +34,9 @@ def build_metadata_filter(state: GraphState) -> GraphState:
 		resolved_case_id = state.get("resolved_case_id")
 		if resolved_case_id:
 			metadata_filter["case_id"] = {"$eq": resolved_case_id}
+			case_name = CASE_METADATA.get(resolved_case_id, {}).get("case_name")
+			if case_name:
+				metadata_filter["case_name"] = {"$eq": case_name}
 	if document_type:
 		metadata_filter["document_type"] = {"$eq": document_type}
 	return {**state, "metadata_filter": metadata_filter or None}

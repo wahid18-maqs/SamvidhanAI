@@ -1,0 +1,9 @@
+frontend/
+data/
+tests/
+docs/
+examples/
+.cache/
+.pytest_cache/
+.deepeval/
+*.ipynb

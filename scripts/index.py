@@ -2,14 +2,17 @@
 
 import argparse
 import json
+import sys
 import time
 from pathlib import Path
 
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(PROJECT_ROOT))
+
 from backend.config import PINECONE_NAMESPACE
+from backend.case_law import validate_case_metadata
 from backend.services.pinecone import PineconeService
 
-
-PROJECT_ROOT = Path(__file__).resolve().parents[1]
 CHUNKS_DIR = PROJECT_ROOT / "data" / "processed" / "chunks"
 METADATA_DIR = PROJECT_ROOT / "data" / "processed" / "metadata"
 # Must match backend.config.PINECONE_NAMESPACE — that's the namespace
@@ -30,6 +33,13 @@ def _upsert_with_retry(service, batch, namespace):
 		try:
 			return service.upsert_records(batch, namespace=namespace)
 		except PineconeApiException as exc:
+			exc_text = str(exc)
+			if "embedding token limit" in exc_text.lower():
+				raise RuntimeError(
+					"Pinecone embedding quota exhausted for the current month. "
+					"Upgrade the organization, wait for the quota reset, or switch "
+					"to precomputed embeddings before rerunning scripts/index.py."
+				) from exc
 			if exc.status != 429 or attempt == MAX_RETRIES - 1:
 				raise
 			wait = 20 * (attempt + 1)
@@ -50,6 +60,19 @@ def _load_records(chunk_path: Path) -> list[dict]:
 	metadata_by_id = {record["chunk_id"]: record for record in metadata}
 	if len(metadata_by_id) != len(metadata) or len(chunks) != len(metadata):
 		raise ValueError(f"Chunk/metadata count mismatch for {chunk_path}")
+	case_records = [record for record in metadata if record.get("document_type") == "case_law"]
+	if case_records:
+		case_ids = {record.get("case_id") for record in case_records}
+		if len(case_ids) != 1 or None in case_ids:
+			raise ValueError(f"Case metadata identity mismatch for {chunk_path}")
+		case_id = next(iter(case_ids))
+		for record in case_records:
+			issues = validate_case_metadata(case_id, record)
+			if record.get("metadata_extraction_failed") or issues:
+				raise ValueError(
+					f"Invalid case metadata for {chunk_path} chunk {record.get('chunk_id')}: "
+					+ "; ".join(record.get("metadata_warnings", []) + issues)
+				)
 	return [
 		{"chunk": chunk, "metadata": metadata_by_id[chunk["chunk_id"]]}
 		for chunk in chunks

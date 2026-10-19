@@ -18,8 +18,12 @@ PENDING_CASE_METADATA below instead.
 CASE_METADATA = {
 	"maneka_gandhi_1978": {
 		"case_name": "Maneka Gandhi v. Union of India",
+		"case_citation": "AIR 1978 SC 597",
+		"date": 1978,
 		"year": 1978,
 		"court": "Supreme Court of India",
+		"document_type": "case_law",
+		"source_file": "maneka_gandhi_1978.pdf",
 		"related_articles": ["21"],
 		"analysis": (
 			"Maneka Gandhi's passport was impounded without being told why or "
@@ -34,8 +38,12 @@ CASE_METADATA = {
 	},
 	"shreya_singhal_2015": {
 		"case_name": "Shreya Singhal v. Union of India",
+		"case_citation": "(2015) 5 SCC 1",
+		"date": 2015,
 		"year": 2015,
 		"court": "Supreme Court of India",
+		"document_type": "case_law",
+		"source_file": "shreya_singhal_2015.pdf",
 		"related_articles": ["19"],
 		"analysis": (
 			"Challenged Section 66A of the IT Act, which criminalized sending "
@@ -51,75 +59,107 @@ CASE_METADATA = {
 	},
 	"minerva_mills_1980": {
 		"case_name": "Minerva Mills v. Union of India",
+		"case_citation": "(1980) 3 SCC 625",
+		"date": 1980,
 		"year": 1980,
 		"court": "Supreme Court of India",
+		"document_type": "case_law",
+		"source_file": "minerva_mills_1980.pdf",
 		"related_articles": ["368", "31C"],
 	},
 	"puttaswamy_2017": {
 		"case_name": "K.S. Puttaswamy v. Union of India",
+		"case_citation": "(2017) 10 SCC 1",
+		"date": 2017,
 		"year": 2017,
 		"court": "Supreme Court of India",
+		"document_type": "case_law",
+		"source_file": "puttaswamy_2017.pdf",
 		"related_articles": ["21"],
 		"note": "Right to privacy",
 	},
 	"adr_v_election_commission_2024": {
 		"case_name": "Association for Democratic Reforms v. Union of India",
+		"case_citation": "2024 INSC 113",
+		"date": 2024,
 		"year": 2024,
 		"court": "Supreme Court of India",
-		"citation": "2024 INSC 113",
+		"document_type": "case_law",
+		"source_file": "adr_v_election_commission_2024.pdf",
 		"related_articles": ["19"],
 		"note": "Electoral bonds case",
 	},
 	"state_of_punjab_v_davinder_singh_2024": {
 		"case_name": "State of Punjab v. Davinder Singh",
+		"case_citation": "2024 INSC 562",
+		"date": 2024,
 		"year": 2024,
 		"court": "Supreme Court of India",
-		"citation": "2024 INSC 562",
+		"document_type": "case_law",
+		"source_file": "state_of_punjab_v_davinder_singh_2024.pdf",
 		"related_articles": ["341", "342", "15", "16"],
 		"note": "SC/ST sub-classification",
 	},
 	"property_owners_association_2024": {
 		"case_name": "Property Owners Association v. State of Maharashtra",
+		"case_citation": "2024 INSC 835",
+		"date": 2024,
 		"year": 2024,
 		"court": "Supreme Court of India",
-		"citation": "2024 INSC 835",
+		"document_type": "case_law",
+		"source_file": "property_owners_association_2024.pdf",
 		"related_articles": ["39", "31C"],
 	},
 	"pooja_ramesh_singh_v_jk_bank_2026": {
 		"case_name": "Pooja Ramesh Singh v. Jammu and Kashmir Bank Ltd. & Anr.",
+		"case_citation": "2026 INSC 668",
+		"date": 2026,
 		"year": 2026,
 		"court": "Supreme Court of India",
-		"citation": "2026 INSC 668",
+		"document_type": "case_law",
+		"source_file": "pooja_ramesh_singh_v_jk_bank_2026.pdf",
 		"related_articles": [],
 		"note": "AI hallucinated precedents ruling. Left empty as it is not a fundamental rights case.",
 	},
 	"golaknath_1967": {
 		"case_name": "I.C. Golaknath v. State of Punjab",
+		"case_citation": "1967 AIR 1643",
+		"date": 1967,
 		"year": 1967,
 		"court": "Supreme Court of India",
-		"citation": "1967 AIR 1643",
+		"document_type": "case_law",
+		"source_file": "golaknath_1967.pdf",
 		"related_articles": ["368", "13"],
 	},
 	"kesavananda_bharati_1973": {
 		"case_name": "Kesavananda Bharati v. State of Kerala",
+		"case_citation": "(1973) 4 SCC 225",
+		"date": 1973,
 		"year": 1973,
 		"court": "Supreme Court of India",
-		"citation": "(1973) 4 SCC 225",
+		"document_type": "case_law",
+		"source_file": "kesavananda_bharati_1973.pdf",
 		"related_articles": ["368", "13", "19", "31"],
 		"note": "Basic structure doctrine",
 	},
 	"sr_bommai_1994": {
 		"case_name": "S.R. Bommai v. Union of India",
+		"case_citation": "(1994) 3 SCC 1",
+		"date": 1994,
 		"year": 1994,
 		"court": "Supreme Court of India",
-		"citation": "(1994) 3 SCC 1",
+		"document_type": "case_law",
+		"source_file": "sr_bommai_1994.pdf",
 		"related_articles": ["356"],
 	},
 	"in_re_article_370_2023": {
 		"case_name": "In Re: Article 370 of the Constitution",
+		"case_citation": "2023 INSC 1058",
+		"date": 2023,
 		"year": 2023,
 		"court": "Supreme Court of India",
-		"citation": "2023 INSC 1058",
+		"document_type": "case_law",
+		"source_file": "in_re_article_370_2023.pdf",
 		"related_articles": ["370", "356"],
 	},
 }
@@ -167,6 +207,34 @@ CASE_NAME_ALIASES: dict[str, list[str]] = {
 		"article 370 ruling",
 	],
 }
+
+REQUIRED_CASE_METADATA_FIELDS = (
+	"case_name",
+	"case_citation",
+	"date",
+	"court",
+	"document_type",
+	"source_file",
+)
+
+
+def validate_case_metadata(case_id: str, metadata: dict) -> list[str]:
+	"""Return missing or inconsistent fields before a case is indexed."""
+	issues = [
+		field
+		for field in REQUIRED_CASE_METADATA_FIELDS
+		if metadata.get(field) in (None, "")
+	]
+	if metadata.get("document_type") != "case_law":
+		issues.append("document_type must be 'case_law'")
+	if metadata.get("year") != metadata.get("date"):
+		issues.append("year must match date")
+	source_file = metadata.get("source_file")
+	if source_file and not source_file.endswith((".pdf", ".txt")):
+		issues.append("source_file must be a .pdf or .txt path")
+	if source_file and source_file.rsplit("/", 1)[-1].rsplit(".", 1)[0] != case_id:
+		issues.append("source_file does not match case_id")
+	return [f"{case_id}: {issue}" for issue in issues]
 
 
 def resolve_case_ids(query: str) -> set[str]:

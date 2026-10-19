@@ -106,6 +106,8 @@ def chat(
 					"conversation_id": payload.conversation_id,
 					"language": payload.language,
 					"status_code": 502,
+					"error_type": type(exc).__name__,
+					"error": str(exc),
 				}
 			},
 		)

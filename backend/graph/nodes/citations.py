@@ -15,7 +15,9 @@ def citation_for(metadata: dict) -> Optional[dict]:
 	label = metadata.get("label")
 	if metadata.get("document_type") == "case_law":
 		source_id = metadata.get("case_id") or source_id
-		label = metadata.get("case_name") or label
+		case_name = metadata.get("case_name") or label
+		case_citation = metadata.get("case_citation")
+		label = f"{case_name} ({case_citation})" if case_citation else case_name
 	elif article:
 		source_id = f"article_{article}"
 		label = label or f"Article {article}"

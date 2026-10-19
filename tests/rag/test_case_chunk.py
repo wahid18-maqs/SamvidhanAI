@@ -56,9 +56,12 @@ class CaseLawMetadataTests(unittest.TestCase):
 		metadata = _metadata_for_chunk("maneka_gandhi_1978", 0)
 		self.assertEqual(metadata["case_id"], "maneka_gandhi_1978")
 		self.assertEqual(metadata["case_name"], "Maneka Gandhi v. Union of India")
+		self.assertEqual(metadata["case_citation"], "AIR 1978 SC 597")
+		self.assertEqual(metadata["date"], 1978)
 		self.assertEqual(metadata["year"], 1978)
 		self.assertEqual(metadata["document_type"], "case_law")
 		self.assertEqual(metadata["category"], "constitutional_law")
+		self.assertEqual(metadata["source_file"], "maneka_gandhi_1978.pdf")
 		self.assertFalse(metadata["metadata_extraction_failed"])
 
 	def test_unregistered_case_id_is_flagged(self):

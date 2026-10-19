@@ -25,7 +25,8 @@ SYSTEM_PROMPT = (
 	"key clause, cite_source_ids must contain ONLY source_id values that "
 	"literally appear as a [source_id: ...] tag above — never invent one, "
 	"and never cite a source_id that isn't actually relevant to that "
-	"specific piece of text. Distinguish constitutional text from case-law "
+	"specific piece of text. For case-law claims, include the retrieved "
+	"case source_id so the backend can return its case name and citation. Distinguish constitutional text from case-law "
 	"interpretation. If the context is insufficient to answer, say so "
 	"explicitly in the summary and explanation, and leave sections and "
 	"key_clauses empty rather than guessing. Keep article/clause "
@@ -65,6 +66,7 @@ class _RawStructuredAnswer(BaseModel):
 	own retrieved metadata is (see generate_answer's resolution step)."""
 
 	summary: str
+	summary_cite_source_ids: list[str] = Field(default_factory=list)
 	sections: list[_RawSection] = Field(default_factory=list)
 	key_clauses: list[_RawKeyClause] = Field(default_factory=list)
 	explanation: str
@@ -130,7 +132,11 @@ def _render_answer(structured: dict) -> str:
 	compatible `answer` field."""
 	parts = []
 	if structured["summary"]:
-		parts.append(f"Summary: {structured['summary']}")
+		summary = structured["summary"]
+		if structured.get("summary_citations"):
+			labels = ", ".join(citation["label"] for citation in structured["summary_citations"])
+			summary += f" ({labels})"
+		parts.append(f"Summary: {summary}")
 	for section in structured["sections"]:
 		parts.append(f"{section['heading']}\n{section['body']}")
 	if structured["key_clauses"]:
@@ -144,6 +150,23 @@ def _render_answer(structured: dict) -> str:
 
 def generate_answer(state: GraphState, model: Optional[Any] = None) -> GraphState:
 	"""Call Gemini (or an injected model) to produce a grounded, structured answer."""
+	if not state.get("retrieved_documents"):
+		message = (
+			"I do not have enough retrieved constitutional material to answer this "
+			"question reliably. Please try a more specific article, clause, or case name."
+		)
+		structured = {
+			"summary": message,
+			"sections": [],
+			"key_clauses": [],
+			"explanation": DISCLAIMER,
+		}
+		return {
+			**state,
+			"answer": f"Summary: {message}\n\n{DISCLAIMER}",
+			"citations": [],
+			**structured,
+		}
 	active_model = model or _get_model()
 	prompt = build_prompt(state)
 	raw: _RawStructuredAnswer = active_model.invoke(prompt)
@@ -159,6 +182,7 @@ def generate_answer(state: GraphState, model: Optional[Any] = None) -> GraphStat
 		}
 		for section in raw.sections
 	]
+	summary_citations = _resolve_citations(raw.summary_cite_source_ids, lookup)
 	key_clauses = [
 		{
 			"text": clause.text,
@@ -170,6 +194,7 @@ def generate_answer(state: GraphState, model: Optional[Any] = None) -> GraphStat
 
 	structured = {
 		"summary": raw.summary,
+		"summary_citations": summary_citations,
 		"sections": sections,
 		"key_clauses": key_clauses,
 		"explanation": explanation,

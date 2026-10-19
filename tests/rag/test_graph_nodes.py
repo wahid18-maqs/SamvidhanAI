@@ -77,7 +77,11 @@ class MetadataBuilderTests(unittest.TestCase):
 		})
 		self.assertEqual(
 			state["metadata_filter"],
-			{"document_type": {"$eq": "case_law"}, "case_id": {"$eq": "golaknath_1967"}},
+			{
+				"document_type": {"$eq": "case_law"},
+				"case_id": {"$eq": "golaknath_1967"},
+				"case_name": {"$eq": "I.C. Golaknath v. State of Punjab"},
+			},
 		)
 
 	def test_no_resolved_case_id_leaves_case_law_filter_corpus_wide(self):
@@ -113,13 +117,21 @@ class CaseIdResolutionTests(unittest.TestCase):
 	def test_golaknath_query_narrows_to_golaknath(self):
 		self.assertEqual(
 			self._resolve("What did the Supreme Court decide in Golaknath v. State of Punjab?"),
-			{"document_type": {"$eq": "case_law"}, "case_id": {"$eq": "golaknath_1967"}},
+			{
+				"document_type": {"$eq": "case_law"},
+				"case_id": {"$eq": "golaknath_1967"},
+				"case_name": {"$eq": "I.C. Golaknath v. State of Punjab"},
+			},
 		)
 
 	def test_kesavananda_bharati_query_narrows_to_kesavananda(self):
 		self.assertEqual(
 			self._resolve("What is the basic structure doctrine established in Kesavananda Bharati?"),
-			{"document_type": {"$eq": "case_law"}, "case_id": {"$eq": "kesavananda_bharati_1973"}},
+			{
+				"document_type": {"$eq": "case_law"},
+				"case_id": {"$eq": "kesavananda_bharati_1973"},
+				"case_name": {"$eq": "Kesavananda Bharati v. State of Kerala"},
+			},
 		)
 
 	def test_bommai_query_narrows_to_bommai(self):

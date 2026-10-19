@@ -11,6 +11,7 @@ from fastapi import APIRouter, HTTPException
 from backend.case_law import CASE_METADATA
 from backend.config import PINECONE_NAMESPACE
 from backend.models.source import SourceResponse
+from backend.rag.retriever import is_embedding_quota_error
 from backend.services.pinecone import PineconeService
 from backend.services.pinecone_chat import hits_from_response
 
@@ -50,9 +51,14 @@ def _build_source_response(source_id: str) -> Optional[SourceResponse]:
 		metadata_filter = {"case_id": {"$eq": source_id}, "document_type": {"$eq": "case_law"}}
 		query_text = source_id.replace("_", " ")
 
-	response = _get_service().search_text(
-		text=query_text, top_k=5, filter=metadata_filter, namespace=PINECONE_NAMESPACE
-	)
+	try:
+		response = _get_service().search_text(
+			text=query_text, top_k=5, filter=metadata_filter, namespace=PINECONE_NAMESPACE
+		)
+	except Exception as error:
+		if not is_embedding_quota_error(error):
+			raise
+		return None
 	hits = hits_from_response(response)
 	if not hits:
 		return None
